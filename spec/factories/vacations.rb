@@ -2,6 +2,7 @@ FactoryGirl.define do
   factory :vacation do
     start_date DateTime.now
     end_date { start_date + 2.days }
+    association :vacationable, factory: [:manager, :worker].sample
   end
 
   factory :worker_vacation, parent: :vacation do

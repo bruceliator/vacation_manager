@@ -15,6 +15,7 @@ class VacationValidator < ActiveModel::Validator
     start_date_in_future
     vacations_in_year
     gap_between
+    on_vacation_limit
   end
 
   private
@@ -68,6 +69,18 @@ class VacationValidator < ActiveModel::Validator
     end
   end
 
+  def on_vacation_limit
+    return if dates_or_vacationable_blank?
+    type = record.vacationable_type.downcase.to_sym
+    on_vacation = vacationable.on_vacation_count(start_date, end_date)
+    ratio = ratio_on_vacation(on_vacation)
+    max_ratio = Vacation::MAX_PART_ON_VACATION[type]
+    if ratio > max_ratio && on_vacation > 1
+      errors.add(:base, :on_vacation_percentage,
+                 message: 'too many on vacation at this period')
+    end
+  end
+
   def blank_dates?
     end_date.blank? || start_date.blank?
   end
@@ -84,5 +97,10 @@ class VacationValidator < ActiveModel::Validator
   def gap_after(date)
     next_date = vacationable.next_vacation_start_date(date)
     (next_date - date).to_i / 86400 if next_date
+  end
+
+  def ratio_on_vacation(on_vacation)
+    total = vacationable.class.count
+    on_vacation.to_f/total
   end
 end

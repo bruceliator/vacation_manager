@@ -5,8 +5,7 @@ class Vacation < ApplicationRecord
   MAX_DAYS_ON_VACATION_IN_YEAR = 30
   MAX_VACATIONS_COUNT_IN_YEAR = 3
   MIN_GAP_BETWEEN_VACATIONS = 60
-  MAX_MANAGERS_PART_ON_VACATION = 1/10
-  MAX_WORKERS_PART_ON_VACATION = 1/2
+  MAX_PART_ON_VACATION = { manager: 0.1, worker: 0.5 }
 
   before_save :calculate_duration
   before_validation :create_scope
@@ -19,8 +18,9 @@ class Vacation < ApplicationRecord
   scope :in_year, -> (date) { where('start_date >= ? AND start_date <= ?', date.beginning_of_year, date.end_of_year) }
   scope :ending_before_some_date, -> (date) { where('start_date >= ? AND end_date < ?', date.beginning_of_year, date) }
   scope :starting_after_some_date, -> (date) { where('start_date >= ? AND end_date < ?', date, date.end_of_year) }
-  scope :in_range, -> (s, e) { where('(start_date BETWEEN ? AND ? OR end_date BETWEEN ? AND ?) OR
-                                      (start_date <= ? AND end_date >= ?)', s, e, s, e, s, e) }
+  scope :in_range_by_type, -> (range_start, range_end, type) { where('(vacationable_type = :type) AND
+                                                            ((start_date BETWEEN :s AND :f OR end_date BETWEEN :s AND :f) OR
+                                                            (start_date <= :s AND end_date >= :f))', type: type, s: range_start, f: range_end) }
 
   def working_days_count
     Date.working_days_between(start_date, end_date)
