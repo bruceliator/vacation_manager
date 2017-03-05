@@ -1,0 +1,3 @@
+= "Worker #{@worker.email}"
+= render partial: 'vacations/vacations', locals: { vacationable: @worker }
+= render partial: 'vacations/form', locals: { vacationable: @worker }

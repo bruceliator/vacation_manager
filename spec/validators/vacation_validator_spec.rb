@@ -8,7 +8,12 @@ RSpec.describe VacationValidator do
   let(:params) { { vacationable: vacationable }.merge(additional_params) }
   let(:beginning_of_year) { Date.today.beginning_of_year }
 
-  before { subject.valid? }
+  before do
+    Timecop.freeze(beginning_of_year)
+    subject.valid?
+  end
+
+  after { Timecop.return }
 
   describe 'end_date validation' do
     context 'when end date before start' do
@@ -63,12 +68,7 @@ RSpec.describe VacationValidator do
 
   describe 'current year limit' do
 
-    before do
-      Timecop.freeze(beginning_of_year)
-      create(:vacation, vacationable: vacationable, start_date: 1.day.since, end_date: 30.days.since)
-    end
-
-    after { Timecop.return }
+    before { create(:vacation, vacationable: vacationable, start_date: 1.day.since, end_date: 30.days.since) }
 
     context 'when limit exceeded' do
 
@@ -90,7 +90,6 @@ RSpec.describe VacationValidator do
 
   describe 'current year limit' do
     before do
-      Timecop.freeze(beginning_of_year)
       3.times do |i|
         vacation_duration = 5
         start_date = ((Vacation::MIN_GAP_BETWEEN_VACATIONS + 1 + vacation_duration) * i + 1).days.from_now # to make gap between vacations more than 60 days
@@ -102,8 +101,6 @@ RSpec.describe VacationValidator do
       end
       subject.valid?
     end
-
-    after { Timecop.return }
 
     context 'when vacations count exceeded' do
       let(:end_of_year) { Date.today.end_of_year }
@@ -121,9 +118,6 @@ RSpec.describe VacationValidator do
 
   describe 'gap between vacations' do
     let(:invalid_gap) { 10.days }
-
-    before { Timecop.freeze(beginning_of_year) }
-    after { Timecop.return }
 
     context 'when one vacation before exists' do
       let(:previous_start_date) { beginning_of_year + 1.day }
@@ -149,7 +143,7 @@ RSpec.describe VacationValidator do
       end
     end
 
-    context 'when one vacation after exists' do
+    context 'when one vacation after too close' do
       let(:next_start_date) { DateTime.now.end_of_year - 10.days }
       let(:next_end_date) { next_start_date + 5.days }
       let(:end_date) { next_start_date - invalid_gap }
@@ -187,6 +181,37 @@ RSpec.describe VacationValidator do
         )
         subject.valid?
       end
+
+      it { is_expected.to be_valid }
+    end
+  end
+
+  describe 'people on vacation limit' do
+    context 'when too much managers on vacation' do
+      before do
+        create(:manager_vacation, start_date: 2.days.from_now, end_date: 5.days.from_now)
+        subject.valid?
+      end
+
+      let(:additional_params) { { start_date: 3.days.from_now, end_date: 6.days.from_now  } }
+
+      it { is_expected.not_to be_valid }
+      it 'fails on ratio overflow' do
+        expect(subject).to have(1).error_on(:base)
+      end
+      it 'should show message' do
+        expect(subject.errors.messages[:base]).to include('too many on vacation at this period')
+      end
+    end
+
+    context 'when managers enough' do
+      before do
+        allow(Manager).to receive(:count).and_return(1/Vacation::MAX_PART_ON_VACATION[:manager] + 1)
+        create(:manager_vacation, start_date: 2.days.from_now, end_date: 5.days.from_now)
+        subject.valid?
+      end
+
+      let(:additional_params) { { start_date: 3.days.from_now, end_date: 6.days.from_now  } }
 
       it { is_expected.to be_valid }
     end

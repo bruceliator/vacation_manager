@@ -21,13 +21,5 @@ module HasVacation
   def vacations_in_year(date)
     vacations.in_year(date)
   end
-
-  def previous_vacation_end_date(date)
-    vacations.ending_before_some_date(date).maximum(:end_date)
-  end
-
-  def next_vacation_start_date(date)
-    vacations.starting_after_some_date(date).minimum(:start_date)
-  end
 end
 

@@ -60,10 +60,7 @@ class VacationValidator < ActiveModel::Validator
 
   def gap_between
     return if dates_or_vacationable_blank?
-    min_gap = Vacation::MIN_GAP_BETWEEN_VACATIONS
-    gap_before = gap_before(start_date)
-    gap_after = gap_after(end_date)
-    if (gap_before && gap_before < min_gap) || (gap_after && gap_after < min_gap)
+    unless vacationable.vacations.valid_gaps?(start_date, end_date)
       errors.add(:base, :gap_value,
                  message: 'previous or next vacation too close')
     end
@@ -75,7 +72,7 @@ class VacationValidator < ActiveModel::Validator
     on_vacation = vacationable.on_vacation_count(start_date, end_date)
     ratio = ratio_on_vacation(on_vacation)
     max_ratio = Vacation::MAX_PART_ON_VACATION[type]
-    if ratio > max_ratio && on_vacation > 1
+    if ratio >= max_ratio && on_vacation >= 1
       errors.add(:base, :on_vacation_percentage,
                  message: 'too many on vacation at this period')
     end
@@ -87,16 +84,6 @@ class VacationValidator < ActiveModel::Validator
 
   def dates_or_vacationable_blank?
     vacationable.blank? || blank_dates?
-  end
-
-  def gap_before(date)
-    previous_date = vacationable.previous_vacation_end_date(date)
-    (date - previous_date).to_i / 86400 if previous_date
-  end
-
-  def gap_after(date)
-    next_date = vacationable.next_vacation_start_date(date)
-    (next_date - date).to_i / 86400 if next_date
   end
 
   def ratio_on_vacation(on_vacation)

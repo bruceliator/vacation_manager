@@ -23,32 +23,8 @@ RSpec.describe Vacation, type: :model do
       it { is_expected.not_to include(next_year_vacation) }
     end
 
-    context '.ending_before_some_date' do
-      subject { Vacation.ending_before_some_date(date) }
-
-      let(:date) { 10.days.from_now }
-      let(:before_date_vacation) { create(:vacation, start_date: date - 5.days) }
-      let(:after_date_vacation) { create(:vacation, start_date: date + 5.days) }
-
-      it { is_expected.to include(before_date_vacation) }
-      it { is_expected.not_to include(after_date_vacation) }
-    end
-
-    context '.starting_after_some_date' do
-      subject { Vacation.starting_after_some_date(date) }
-
-      let(:date) { 10.days.from_now }
-      let(:start_before_date) { create(:vacation, start_date: date - 1.day) }
-      let(:start_after_date) { create(:vacation, start_date: date + 1.day) }
-
-      it { is_expected.to include(start_after_date) }
-      it { is_expected.not_to include(start_before_date) }
-      end
-
     context '.in_range_by_type' do
       subject { Vacation.in_range_by_type(range_start, range_end, type) }
-
-      before { create_list(:manager, 25) }
 
       let(:type) { 'Manager' }
       let(:range_start) { 10.days.from_now }
