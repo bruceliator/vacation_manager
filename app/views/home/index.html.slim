@@ -1,0 +1,8 @@
+ul
+  li
+    = link_to 'Home', root_path
+  li
+    - if current_manager
+      = link_to 'Sign out', destroy_manager_session_path, method: :delete
+    - else
+      = link_to 'Sign in', new_manager_session_path

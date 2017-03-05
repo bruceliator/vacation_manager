@@ -1,0 +1,20 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+
+development:
+  <<: *default
+  database: vacation_manager_development
+  username:
+  password:
+
+test:
+  <<: *default
+  database: vacation_manager_test
+  username:
+  password:
+
+production:
+  <<: *default
+  database: vacation_manager_production
