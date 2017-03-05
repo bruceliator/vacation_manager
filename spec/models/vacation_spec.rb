@@ -40,4 +40,15 @@ RSpec.describe Vacation, type: :model do
       it { is_expected.not_to include(after_range) }
     end
   end
+
+  describe '#send_email' do
+    it 'enqueues sending the invitation' do
+      allow(SendVacationInformationJob).to receive(:perform_later)
+      vacation = build(:vacation)
+
+      vacation.send_email
+
+      expect(SendVacationInformationJob).to have_received(:perform_later)
+    end
+  end
 end

@@ -13,7 +13,7 @@ RSpec.describe VacationsController, type: :controller do
       before do
         @request.env['devise.mapping'] = Devise.mappings[:manager]
         sign_in manager
-        post :create, params
+        post :create, params: params
       end
 
       it { is_expected.to have_http_status(302) }
@@ -21,7 +21,7 @@ RSpec.describe VacationsController, type: :controller do
     end
 
     context 'when not authenticated manager' do
-      before { post :create, params }
+      before { post :create, params: params }
 
       it { expect(response).to redirect_to(new_manager_session_path) }
     end

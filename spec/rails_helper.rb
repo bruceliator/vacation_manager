@@ -24,6 +24,8 @@ RSpec.configure do |config|
     end
   end
 
+  Dir[Rails.root.join('spec/support/**/*.rb')].sort.each { |file| require file }
+
   config.include Devise::Test::ControllerHelpers, type: :controller
 
   config.infer_spec_type_from_file_location!

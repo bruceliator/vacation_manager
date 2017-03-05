@@ -9,6 +9,7 @@ class Vacation < ApplicationRecord
 
   before_save :calculate_duration
   before_validation :create_scope
+  after_create :send_email
 
   belongs_to :vacationable, polymorphic: true
 
@@ -30,6 +31,10 @@ class Vacation < ApplicationRecord
 
   def working_days_count
     Date.working_days_between(start_date, end_date)
+  end
+
+  def send_email
+    SendVacationInformationJob.perform_later(id)
   end
 
   private

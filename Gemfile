@@ -13,7 +13,6 @@ gem 'jbuilder', '~> 2.5'
 gem 'jquery-rails'
 gem 'pg', '~> 0.18.4'
 gem 'puma', '~> 3.0'
-gem 'rubocop', '~> 0.47.1', require: false
 gem 'sass-rails', '~> 5.0'
 gem 'slim'
 gem 'turbolinks', '~> 5'
