@@ -7,8 +7,10 @@ end
 
 gem 'rails', '~> 5.0.1'
 
-gem 'devise'
 gem 'coffee-rails', '~> 4.2'
+gem 'delayed_job_active_record'
+gem 'devise'
+gem 'daemons'
 gem 'jbuilder', '~> 2.5'
 gem 'jquery-rails'
 gem 'pg', '~> 0.18.4'
@@ -16,9 +18,10 @@ gem 'puma', '~> 3.0'
 gem 'sass-rails', '~> 5.0'
 gem 'slim'
 gem 'turbolinks', '~> 5'
-gem 'uglifier', '>= 1.3.0'
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'uglifier', '>= 1.3.0'
 gem 'validates_overlap'
+gem 'whenever', :require => false
 
 group :development, :test do
   gem 'byebug', platform: :mri

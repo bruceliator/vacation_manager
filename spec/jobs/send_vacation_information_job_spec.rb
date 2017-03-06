@@ -4,10 +4,9 @@ RSpec.describe SendVacationInformationJob, type: :job do
   describe '#perform' do
     it 'calls on the VacationMailer' do
       vacation = double('vacation', id: 1)
-      allow(Vacation).to receive(:find).and_return(vacation)
-      allow(VacationMailer).to receive_message_chain(:vacation_email, :deliver_now)
+      allow(VacationMailer).to receive_message_chain(:vacation_email, :deliver_later)
 
-      described_class.new.perform(vacation.id)
+      described_class.new.perform(vacation)
 
       expect(VacationMailer).to have_received(:vacation_email)
     end
@@ -15,7 +14,7 @@ RSpec.describe SendVacationInformationJob, type: :job do
 
   describe '.perform_later' do
     it 'adds the job to the queue :vacation_info' do
-      allow(VacationMailer).to receive_message_chain(:vacation_email, :deliver_now)
+      allow(VacationMailer).to receive_message_chain(:vacation_email, :deliver_later)
 
       described_class.perform_later(1)
 

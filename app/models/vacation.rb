@@ -13,8 +13,8 @@ class Vacation < ApplicationRecord
 
   belongs_to :vacationable, polymorphic: true
 
-  validates_presence_of :start_date, :end_date
-  validates :start_date, :end_date, overlap: { scope: 'vacationable_id', query_options: { by_type: nil } }
+  validates :start_date, :end_date, overlap: { scope: 'vacationable_id', query_options: { by_type: nil } },
+            presence: true
   validates_with VacationValidator
   scope :in_year, -> (date) { where('start_date >= ? AND start_date <= ?', date.beginning_of_year, date.end_of_year) }
   scope :in_range_by_type, -> (range_start, range_end, type) { where('(vacationable_type = :type) AND
@@ -34,7 +34,7 @@ class Vacation < ApplicationRecord
   end
 
   def send_email
-    SendVacationInformationJob.perform_later(id)
+    SendVacationInformationJob.perform_later(self)
   end
 
   private

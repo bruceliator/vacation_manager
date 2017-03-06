@@ -15,7 +15,7 @@ describe VacationMailer  do
         expect(mail.from).to eq ['vacation@example.com']
       end
 
-      it "includes the correct information" do
+      it 'includes the correct information' do
         expect(mail.body.encoded).to include vacation.vacationable.email
       end
     end
